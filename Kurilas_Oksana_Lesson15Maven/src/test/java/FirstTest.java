@@ -67,6 +67,7 @@ public class FirstTest {
     @Test
     public void openChromeInKioskMode() {
         logger.info("Открыть Chrome в режиме киоск");
+        driver.quit();
         options.addArguments("--kiosk");
         chromeOptions(options);
 
