@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class FirstTest {
 
     private Logger logger = LogManager.getLogger(FirstTest.class);
-    WebDriver driver;
+    private WebDriver driver;
     private ConfigServer cfg = ConfigFactory.create(ConfigServer.class);
     private WebDriverWait wait;
     private ChromeOptions options = new ChromeOptions();
@@ -30,108 +30,128 @@ public class FirstTest {
     @Before
     public void setUp(){
         WebDriverManager.chromedriver().setup();
-        driver =new ChromeDriver();
         logger.info("драйвер поднят");
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     @After
     public void close(){
         if (driver!=null) {
             driver.close();
+            driver.quit();
         }
     }
 
 
     @Test
     public void openChromeInHeadlessMode()  {
+
+        By searchField = By.id("search_form_input_homepage");
+        By searchBtn = By.id("search_button_homepage");
+        By searchResult = By.id("r1-0");
+
         logger.info("Открыть Chrome в headless режиме");
-        driver.quit();
         options.addArguments("headless");
-        chromeOptions(options);
+        init(options);
+
         driver.get("https://duckduckgo.com/"); // driver.get(cfg.urlDUCK());
 
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("search_form_input_homepage"))).sendKeys("ОТУС");
-        driver.findElement(By.id("search_button_homepage")).click();
-        String text =wait.until(ExpectedConditions.presenceOfElementLocated(By.id("r1-0"))).getText();
+        wait.until(ExpectedConditions.presenceOfElementLocated(searchField))
+                .sendKeys("ОТУС");
+        $(searchBtn)
+                .click();
+
+        String text =wait.until(ExpectedConditions.presenceOfElementLocated(searchResult))
+                .getText();
+
         logger.info("Первый результат поиска: "+text);
-        System.out.println("ошибка: " + text);
+        System.out.println(text);
+
         Assert.assertTrue(text.contains("Онлайн‑курсы для профессионалов, дистанционное обучение"));
     }
 
-    private void chromeOptions(ChromeOptions options){
+    private void init(ChromeOptions options){
         driver = new ChromeDriver(options);
+        logger.info("драйвер поднят");
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     @Test
     public void openChromeInKioskMode() {
+
+        By closeVideo = By.id("vdo_ai_cross");
+        By picture = By.xpath("//li[@data-type='cat-item-1']/child::span");
+        By expandBtn = By.cssSelector("a.pp_expand");
+
         logger.info("Открыть Chrome в режиме киоск");
-        driver.quit();
         options.addArguments("--kiosk");
-        chromeOptions(options);
+        init(options);
 
         driver.get("https://demo.w3layouts.com/demos_new/template_demo/03-10-2020/photoflash-liberty-demo_Free/685659620/web/index.html?_ga=2.181802926.889871791.1632394818-2083132868.1632394818"); // driver.get(cfg.urlDEMO());
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("vdo_ai_cross"))).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(closeVideo))
+                .click();
         logger.info("Закрыто окно с видео");
-        WebElement pic = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/section[2]/div/ul[2]/li[3]/span")));
+        WebElement pic = wait.until(ExpectedConditions.elementToBeClickable(picture));
 
         ScrollClass scrollClass = new ScrollClass();
         scrollClass.scroll(pic, driver);
 
         pic.click();
-        Assert.assertTrue(wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("a.pp_expand"))).isEnabled());
+        Assert.assertTrue(wait.until(ExpectedConditions.presenceOfElementLocated(expandBtn)).isEnabled());
         logger.info("картинка открылась в модальном окне");
     }
 
     @Test
     public void openChromeInFullScreenMode() {
+
+        By OTUSheader = By.cssSelector(".header2__logo");
+
         logger.info("Открыть Chrome в режиме полного экрана");
-        driver.manage().window().fullscreen();
+        options.addArguments("start-fullscreen");
+        init(options);
+
         driver.get("http://otus.ru"); // driver.get(cfg.urlOTUS());
-        Assert.assertTrue(wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".header2__logo"))).isEnabled());
+
+        Assert.assertTrue(wait.until(ExpectedConditions.elementToBeClickable(OTUSheader)).isEnabled());
+
         auth();
+
         logger.info("Вывести в лог все cookie");
-
-        StringBuffer ret = new StringBuffer();
-        ArrayList<Cookie> cookies1=new ArrayList<>(driver.manage().getCookies());
-        for (int i = 0; i < cookies1.size(); i++) {
-            ret.append(cookies1.get(i).getName() + "=" + cookies1.get(i).getValue());
-            if (i != cookies1.size() - 1) {
-                ret.append("; ");
-            }
-        }
-        logger.info(ret);
-
-
+        ArrayList<Cookie> cookies=new ArrayList<>(driver.manage().getCookies());
+        cookies.forEach(cookie -> logger.info(cookie.getName() + "=" + cookie.getValue()));
     }
 
     private void auth() {
+
+        By loginBtn = By.xpath("//button[contains(text(),'Вход')]");
+        By loginField = By.cssSelector(".js-login input[name='email']");
+        By pwdField = By.xpath("//input[@type='password']");
+        By loginButton = By.xpath("//button[contains(text(),'Войти')]");
+        By avatar = By.cssSelector("div.header2-menu__icon-img.ic-blog-default-avatar");
+
         logger.info("Авторизация");
 
 
-//        wait.until(ExpectedConditions.and(
-//                ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(text(),'Вход')]")),
-//                ExpectedConditions.presenceOfElementLocated(By.cssSelector(".js-login input[name='email']"))
-//        ));
-//        driver.findElement(By.xpath("//button[contains(text(),'Вход')]"))
-//                .click();
-//        driver.findElement(By.cssSelector(".js-login input[name='email']"))
-//                .sendKeys("oksana777@list.ru");//.sendKeys(cfg.login());
-
-        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(text(),'Вход')]"))).click();
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".js-login input[name='email']")))
-                .sendKeys("oksana777@list.ru");
-
-        driver.findElement(By.xpath("//input[@type='password']"))
+        wait.until(ExpectedConditions.elementToBeClickable(loginBtn))
+                .click();
+        wait.until(ExpectedConditions.and(
+                ExpectedConditions.presenceOfElementLocated(loginField),
+                ExpectedConditions.presenceOfElementLocated(pwdField)
+        ));
+        $(loginField)
+                .sendKeys("oksana777@list.ru");//.sendKeys(cfg.login());
+        $(pwdField)
                 .sendKeys("Caiman123!");//.sendKeys(cfg.pwd());
-        driver.findElement(By.xpath("//button[contains(text(),'Войти')]")).submit();
+        $(loginButton)
+                .submit();
 
-        WebElement avatar = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.header2-menu__icon-img.ic-blog-default-avatar")));
-        Assert.assertTrue((avatar).isDisplayed());
+        WebElement avatarPic = wait.until(ExpectedConditions.presenceOfElementLocated(avatar));
+        Assert.assertTrue((avatarPic).isDisplayed());
         logger.info("Авторизация прошла успешно");
     }
 
-
+    private WebElement $(By locator) {
+        return driver.findElement(locator);
+    }
 
 }
