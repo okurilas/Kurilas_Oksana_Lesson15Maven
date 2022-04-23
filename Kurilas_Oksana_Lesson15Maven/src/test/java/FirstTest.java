@@ -86,7 +86,7 @@ public class FirstTest {
         options.addArguments("--kiosk");
         init(options);
 
-        driver.get(cfg.urlDEMO()); //driver.get("https://demo.w3layouts.com/demos_new/template_demo/03-10-2020/photoflash-liberty-demo_Free/685659620/web/index.html?_ga=2.181802926.889871791.1632394818-2083132868.1632394818"); // driver.get(cfg.urlDEMO());
+        driver.get(cfg.urlDEMO());//driver.get("https://demo.w3layouts.com/demos_new/template_demo/03-10-2020/photoflash-liberty-demo_Free/685659620/web/index.html?_ga=2.181802926.889871791.1632394818-2083132868.1632394818"); // driver.get(cfg.urlDEMO());
 
         wait.until(ExpectedConditions.presenceOfElementLocated(closeVideo))
                 .click();
@@ -110,7 +110,7 @@ public class FirstTest {
         options.addArguments("start-fullscreen");
         init(options);
 
-        driver.get(cfg.urlOTUS()); //driver.get("http://otus.ru"); // driver.get(cfg.urlOTUS());
+        driver.get(cfg.urlOTUS());//driver.get("http://otus.ru"); // driver.get(cfg.urlOTUS());
 
         Assert.assertTrue(wait.until(ExpectedConditions.elementToBeClickable(OTUSheader)).isEnabled());
 
@@ -139,9 +139,9 @@ public class FirstTest {
                 ExpectedConditions.presenceOfElementLocated(pwdField)
         ));
         $(loginField)
-                .sendKeys(cfg.login()); //.sendKeys("oksana777@list.ru");//.sendKeys(cfg.login());
+                .sendKeys(cfg.login());//.sendKeys("oksana777@list.ru");//.sendKeys(cfg.login());
         $(pwdField)
-                .sendKeys(cfg.pwd()); //.sendKeys("Caiman123!");//.sendKeys(cfg.pwd());
+                .sendKeys(cfg.pwd());//.sendKeys("Caiman123!");//.sendKeys(cfg.pwd());
         $(loginButton)
                 .submit();
 
