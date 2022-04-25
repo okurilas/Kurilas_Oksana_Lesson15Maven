@@ -26,6 +26,8 @@ public class FirstTest {
     private ConfigServer cfg = ConfigFactory.create(ConfigServer.class);
     private WebDriverWait wait;
     private ChromeOptions options = new ChromeOptions();
+    private WebElementUtils webElementUtils = new WebElementUtils();
+    private AuthFormComponent authFormComponent = new AuthFormComponent();
 
     @Before
     public void setUp(){
@@ -57,7 +59,8 @@ public class FirstTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(searchField))
                 .sendKeys("ОТУС");
-        $(searchBtn)
+
+        webElementUtils.$(searchBtn,driver)
                 .click();
 
         String text =wait.until(ExpectedConditions.presenceOfElementLocated(searchResult))
@@ -114,44 +117,12 @@ public class FirstTest {
 
         Assert.assertTrue(wait.until(ExpectedConditions.elementToBeClickable(OTUSheader)).isEnabled());
 
-        auth();
+        authFormComponent.auth(driver, wait, logger);
 
         logger.info("Вывести в лог все cookie");
         ArrayList<Cookie> cookies=new ArrayList<>(driver.manage().getCookies());
         cookies.forEach(cookie -> logger.info(cookie.getName() + "=" + cookie.getValue()));
     }
 
-    private void auth() {
-
-        By loginBtn = By.xpath("//button[contains(text(),'Вход')]");
-        By loginField = By.cssSelector(".js-login input[name='email']");
-        By pwdField = By.xpath("//input[@type='password']");
-        By loginButton = By.xpath("//button[contains(text(),'Войти')]");
-        By avatar = By.cssSelector("div.header2-menu__icon-img.ic-blog-default-avatar");
-
-        logger.info("Авторизация");
-
-
-        wait.until(ExpectedConditions.elementToBeClickable(loginBtn))
-                .click();
-        wait.until(ExpectedConditions.and(
-                ExpectedConditions.presenceOfElementLocated(loginField),
-                ExpectedConditions.presenceOfElementLocated(pwdField)
-        ));
-        $(loginField)
-                .sendKeys(cfg.login());//.sendKeys("oksana777@list.ru");//.sendKeys(cfg.login());
-        $(pwdField)
-                .sendKeys(cfg.pwd());//.sendKeys("Caiman123!");//.sendKeys(cfg.pwd());
-        $(loginButton)
-                .submit();
-
-        WebElement avatarPic = wait.until(ExpectedConditions.presenceOfElementLocated(avatar));
-        Assert.assertTrue((avatarPic).isDisplayed());
-        logger.info("Авторизация прошла успешно");
-    }
-
-    private WebElement $(By locator) {
-        return driver.findElement(locator);
-    }
 
 }
